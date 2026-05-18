@@ -16,10 +16,16 @@ class Elm327Controller {
 
   Completer<String>? _responseCompleter;
   final StringBuffer _rxBuffer = StringBuffer();
+  late final StreamSubscription<List<int>> _rxSub;
 
   Elm327Controller(this.transport) {
-    transport.rx.listen(_onDataReceived);
+    _rxSub = transport.rx.listen(_onDataReceived);
     _statusController.add(_status);
+  }
+
+  Future<void> dispose() async {
+    await _rxSub.cancel();
+    await _statusController.close();
   }
 
   Stream<Elm327Status> get status => _statusController.stream;
@@ -31,8 +37,9 @@ class Elm327Controller {
     if (s.contains('>')) {
       final fullResponse = _rxBuffer.toString();
       _rxBuffer.clear();
-      _responseCompleter?.complete(fullResponse.replaceAll('>', '').trim());
+      final completer = _responseCompleter;
       _responseCompleter = null;
+      completer?.complete(fullResponse.replaceAll('>', '').trim());
     }
   }
 
@@ -42,7 +49,12 @@ class Elm327Controller {
     }
     _responseCompleter = Completer<String>();
     await transport.write(utf8.encode('$command\r'));
-    return _responseCompleter!.future.timeout(timeout);
+    try {
+      return await _responseCompleter!.future.timeout(timeout);
+    } on TimeoutException {
+      _responseCompleter = null;
+      rethrow;
+    }
   }
 
   Future<void> initialize() async {

@@ -140,5 +140,6 @@ class _GaugePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _GaugePainter old) =>
+      old.value != value || old.min != min || old.max != max || old.color != color;
 }

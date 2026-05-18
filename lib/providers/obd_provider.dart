@@ -31,7 +31,7 @@ ObdService obdService(ObdServiceRef ref) {
   return ObdService(elm);
 }
 
-@riverpod
+@Riverpod()
 Stream<Map<Pid, double>> obdSnapshot(ObdSnapshotRef ref) {
   final service = ref.watch(obdServiceProvider);
   return service.snapshotStream;
