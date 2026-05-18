@@ -1,0 +1,332 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;700&display=swap');
+
+  .obd-root {
+    background: #0A0A0F;
+    min-height: 700px;
+    padding: 0;
+    font-family: 'Syne', sans-serif;
+    color: #F0F0F0;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .mono { font-family: 'DM Mono', monospace; }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .status-left { display: flex; align-items: center; gap: 10px; }
+
+  .conn-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #00E5FF;
+    box-shadow: 0 0 6px #00E5FF80;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .conn-label { font-size: 12px; color: rgba(255,255,255,0.5); letter-spacing: 0.08em; }
+  .vehicle-label { font-size: 12px; color: rgba(255,255,255,0.3); margin-left: 4px; }
+
+  .status-right { display: flex; align-items: center; gap: 16px; }
+
+  .stat-chip {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: rgba(255,255,255,0.4);
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .stat-chip .val { color: rgba(255,255,255,0.75); }
+
+  .main-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+  }
+
+  .panel {
+    background: #0A0A0F;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .panel-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    align-self: flex-start;
+  }
+
+  svg.gauge { overflow: visible; }
+
+  .gauge-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 42px;
+    font-weight: 300;
+    fill: #F0F0F0;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  .gauge-unit {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    fill: rgba(255,255,255,0.35);
+    text-anchor: middle;
+    letter-spacing: 0.12em;
+  }
+
+  .gauge-sublabel {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .pid-strip {
+    display: flex;
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+    border-top: 0.5px solid rgba(255,255,255,0.06);
+  }
+
+  .pid-tile {
+    flex: 1;
+    background: #0A0A0F;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .pid-tile:hover { background: #13131A; }
+
+  .pid-tile.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: #00E5FF;
+  }
+
+  .pid-name {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+  }
+
+  .pid-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    font-weight: 400;
+    color: #F0F0F0;
+    transition: color 0.3s;
+  }
+
+  .pid-val.warn { color: #FF6B00; }
+  .pid-val.crit { color: #FF2D55; }
+
+  .pid-unit {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .dtc-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(255,45,85,0.08);
+    border-top: 0.5px solid rgba(255,45,85,0.25);
+    font-size: 12px;
+  }
+
+  .dtc-dot { width: 6px; height: 6px; border-radius: 50%; background: #FF2D55; flex-shrink: 0; }
+  .dtc-code { font-family: 'DM Mono', monospace; color: #FF2D55; font-size: 12px; }
+  .dtc-desc { color: rgba(255,255,255,0.4); font-size: 12px; }
+  .dtc-spacer { flex: 1; }
+  .dtc-clear { font-size: 11px; color: rgba(255,255,255,0.25); cursor: pointer; letter-spacing: 0.08em; border: 0.5px solid rgba(255,255,255,0.12); padding: 3px 10px; border-radius: 4px; }
+</style>
+
+<div class="obd-root">
+  <h2 class="sr-only">OBD-II dashboard concept mockup showing RPM and speed gauges with live sensor data</h2>
+
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="conn-dot"></div>
+      <span class="conn-label">CONNECTED</span>
+      <span class="vehicle-label mono">iCar Pro 2S · ISO 15765-4</span>
+    </div>
+    <div class="status-right">
+      <div class="stat-chip"><span>VOLT</span><span class="val mono">12.4 V</span></div>
+      <div class="stat-chip"><span>PROTO</span><span class="val mono">CAN 500K</span></div>
+      <div class="stat-chip"><span>POLL</span><span class="val mono">8 Hz</span></div>
+    </div>
+  </div>
+
+  <div class="main-section">
+    <div class="panel">
+      <div class="panel-label">Engine speed</div>
+      <svg class="gauge" width="200" height="200" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+        <circle cx="100" cy="100" r="80" fill="none"
+          stroke="rgba(255,255,255,0.06)" stroke-width="1"
+          stroke-dasharray="2 8"
+          transform="rotate(-90 100 100)"/>
+        <circle cx="100" cy="100" r="80" fill="none"
+          stroke="#00E5FF" stroke-width="10"
+          stroke-linecap="round"
+          stroke-dasharray="314" stroke-dashoffset="188"
+          transform="rotate(-90 100 100)"
+          opacity="0.9"/>
+        <circle cx="100" cy="100" r="80" fill="none"
+          stroke="#FF6B00" stroke-width="10"
+          stroke-linecap="round"
+          stroke-dasharray="314" stroke-dashoffset="251"
+          transform="rotate(150 100 100)"
+          opacity="0.7"/>
+        <text x="100" y="92" class="gauge-value" id="rpm-val">2840</text>
+        <text x="100" y="120" class="gauge-unit">RPM</text>
+      </svg>
+      <span class="gauge-sublabel">× 1000 redline at 6.5k</span>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label">Vehicle speed</div>
+      <svg class="gauge" width="200" height="200" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+        <circle cx="100" cy="100" r="80" fill="none"
+          stroke="rgba(255,255,255,0.06)" stroke-width="1"
+          stroke-dasharray="2 8"
+          transform="rotate(-90 100 100)"/>
+        <circle cx="100" cy="100" r="80" fill="none"
+          stroke="#00E5FF" stroke-width="10"
+          stroke-linecap="round"
+          stroke-dasharray="314" stroke-dashoffset="220"
+          transform="rotate(-90 100 100)"
+          opacity="0.9"/>
+        <text x="100" y="92" class="gauge-value" id="spd-val">48</text>
+        <text x="100" y="120" class="gauge-unit">KM/H</text>
+      </svg>
+      <span class="gauge-sublabel">limit 50 · urban</span>
+    </div>
+  </div>
+
+  <div class="pid-strip">
+    <div class="pid-tile active">
+      <div class="pid-name">Coolant</div>
+      <div class="pid-val" id="coolant-val">87</div>
+      <div class="pid-unit">°C</div>
+    </div>
+    <div class="pid-tile">
+      <div class="pid-name">Throttle</div>
+      <div class="pid-val" id="throttle-val">23</div>
+      <div class="pid-unit">%</div>
+    </div>
+    <div class="pid-tile">
+      <div class="pid-name">Load</div>
+      <div class="pid-val" id="load-val">41</div>
+      <div class="pid-unit">%</div>
+    </div>
+    <div class="pid-tile">
+      <div class="pid-name">Intake temp</div>
+      <div class="pid-val" id="iat-val">34</div>
+      <div class="pid-unit">°C</div>
+    </div>
+    <div class="pid-tile">
+      <div class="pid-name">MAF</div>
+      <div class="pid-val" id="maf-val">8.2</div>
+      <div class="pid-unit">g/s</div>
+    </div>
+    <div class="pid-tile">
+      <div class="pid-name">Fuel trim</div>
+      <div class="pid-val warn" id="ftrim-val">+6.2</div>
+      <div class="pid-unit">%</div>
+    </div>
+  </div>
+
+  <div class="dtc-banner">
+    <div class="dtc-dot"></div>
+    <span class="dtc-code">P0171</span>
+    <span class="dtc-desc">System too lean (bank 1)</span>
+    <div class="dtc-spacer"></div>
+    <span class="dtc-clear">CLEAR</span>
+  </div>
+</div>
+
+<script>
+const rpmEl = document.getElementById('rpm-val');
+const spdEl = document.getElementById('spd-val');
+const coolantEl = document.getElementById('coolant-val');
+const throttleEl = document.getElementById('throttle-val');
+const loadEl = document.getElementById('load-val');
+const iatEl = document.getElementById('iat-val');
+const mafEl = document.getElementById('maf-val');
+const ftrimEl = document.getElementById('ftrim-val');
+
+const rpmArc = document.querySelectorAll('.gauge')[0].querySelector('circle:nth-child(3)');
+const spdArc = document.querySelectorAll('.gauge')[1].querySelector('circle:nth-child(3)');
+
+let rpm = 2840, spd = 48, coolant = 87, throttle = 23, load = 41, iat = 34, maf = 8.2, ftrim = 6.2;
+
+function jitter(val, delta, min, max) {
+  return Math.min(max, Math.max(min, val + (Math.random() - 0.5) * delta));
+}
+
+setInterval(() => {
+  rpm = jitter(rpm, 120, 800, 6500);
+  spd = jitter(spd, 3, 0, 200);
+  coolant = jitter(coolant, 1, 60, 120);
+  throttle = jitter(throttle, 4, 0, 100);
+  load = jitter(load, 3, 0, 100);
+  iat = jitter(iat, 0.5, 15, 60);
+  maf = jitter(maf, 0.4, 0, 40);
+  ftrim = jitter(ftrim, 0.3, -10, 15);
+
+  rpmEl.textContent = Math.round(rpm);
+  spdEl.textContent = Math.round(spd);
+  coolantEl.textContent = Math.round(coolant);
+  throttleEl.textContent = Math.round(throttle);
+  loadEl.textContent = Math.round(load);
+  iatEl.textContent = Math.round(iat);
+  mafEl.textContent = maf.toFixed(1);
+
+  const ftrimRounded = parseFloat(ftrim.toFixed(1));
+  ftrimEl.textContent = (ftrimRounded >= 0 ? '+' : '') + ftrimRounded;
+  ftrimEl.className = 'pid-val' + (Math.abs(ftrim) > 8 ? ' crit' : ftrim > 4 ? ' warn' : '');
+
+  const rpmFrac = Math.min((rpm - 800) / 5700, 1);
+  rpmArc.setAttribute('stroke-dashoffset', Math.round(314 * (1 - rpmFrac)));
+
+  const spdFrac = Math.min(spd / 200, 1);
+  spdArc.setAttribute('stroke-dashoffset', Math.round(314 * (1 - spdFrac)));
+
+  coolantEl.className = 'pid-val' + (coolant > 105 ? ' crit' : coolant > 95 ? ' warn' : '');
+}, 500);
+</script>

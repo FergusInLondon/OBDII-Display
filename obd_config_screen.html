@@ -1,0 +1,451 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;700&display=swap');
+
+  .cfg-root {
+    background: #0A0A0F;
+    min-height: 700px;
+    font-family: 'Syne', sans-serif;
+    color: #F0F0F0;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .mono { font-family: 'DM Mono', monospace; }
+
+  .cfg-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+  }
+
+  .back-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: 0.5px solid rgba(255,255,255,0.1);
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .cfg-title { font-size: 15px; font-weight: 500; }
+  .cfg-subtitle { font-size: 12px; color: rgba(255,255,255,0.3); margin-left: auto; font-family: 'DM Mono', monospace; }
+
+  .cfg-section {
+    padding: 20px 20px 0;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .layout-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .layout-opt {
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    background: #13131A;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .layout-opt:hover { border-color: rgba(255,255,255,0.2); }
+
+  .layout-opt.selected {
+    border-color: #00E5FF;
+    background: rgba(0,229,255,0.05);
+  }
+
+  .layout-preview {
+    width: 64px;
+    height: 44px;
+    position: relative;
+  }
+
+  .layout-name {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+  }
+
+  .layout-opt.selected .layout-name { color: #00E5FF; }
+
+  .slot-grid {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .slot-grid.dual { grid-template-columns: 1fr 1fr; }
+  .slot-grid.single { grid-template-columns: 1fr; }
+
+  .slot-card {
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    background: #13131A;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .slot-card:hover { border-color: rgba(255,255,255,0.18); }
+
+  .slot-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: rgba(0,229,255,0.08);
+    border: 0.5px solid rgba(0,229,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    color: #00E5FF;
+    flex-shrink: 0;
+  }
+
+  .slot-info { flex: 1; }
+  .slot-role { font-size: 10px; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); text-transform: uppercase; margin-bottom: 3px; }
+  .slot-pid { font-size: 14px; font-weight: 500; }
+  .slot-range { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+  .slot-chevron { color: rgba(255,255,255,0.2); font-size: 14px; }
+
+  .strip-section { margin-bottom: 0; }
+
+  .strip-slots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .strip-slot {
+    border: 0.5px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    background: #13131A;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .strip-slot:hover { border-color: rgba(255,255,255,0.15); }
+
+  .strip-pid { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .strip-edit { font-size: 12px; color: rgba(255,255,255,0.2); }
+
+  .divider {
+    height: 0.5px;
+    background: rgba(255,255,255,0.06);
+    margin: 20px 0;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+  }
+
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle-info {}
+  .toggle-label { font-size: 13px; }
+  .toggle-desc { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+  .toggle {
+    width: 38px; height: 22px;
+    border-radius: 11px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .toggle.on { background: #00E5FF; }
+
+  .toggle-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+    top: 3px; left: 3px;
+    transition: left 0.2s;
+  }
+
+  .toggle.on .toggle-thumb { left: 19px; }
+
+  .pid-modal-bg {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 10;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .pid-modal-bg.open { display: flex; }
+
+  .pid-modal {
+    background: #13131A;
+    border-radius: 16px 16px 0 0;
+    border-top: 0.5px solid rgba(255,255,255,0.1);
+    width: 100%;
+    padding: 0 0 20px;
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title { font-size: 14px; font-weight: 500; }
+  .modal-close { font-size: 18px; color: rgba(255,255,255,0.3); cursor: pointer; background: none; border: none; color: rgba(255,255,255,0.4); }
+
+  .pid-list-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 0.5px solid rgba(255,255,255,0.04);
+    transition: background 0.1s;
+  }
+
+  .pid-list-item:hover { background: rgba(255,255,255,0.04); }
+  .pid-list-item.active { background: rgba(0,229,255,0.05); }
+
+  .pid-list-name { flex: 1; font-size: 13px; }
+  .pid-list-unit { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); margin-right: 12px; }
+  .pid-list-check { color: #00E5FF; font-size: 14px; }
+</style>
+
+<div class="cfg-root" style="position:relative;">
+  <h2 class="sr-only">Dashboard configuration screen for OBD-II app, showing layout picker and PID slot assignment</h2>
+
+  <div class="cfg-header">
+    <div class="back-btn"><i class="ti ti-arrow-left" aria-hidden="true"></i></div>
+    <span class="cfg-title">Dashboard layout</span>
+    <span class="cfg-subtitle mono">4 PIDs active</span>
+  </div>
+
+  <div class="cfg-section">
+    <div class="section-label">Layout</div>
+    <div class="layout-picker">
+
+      <div class="layout-opt" id="opt-single" onclick="selectLayout('single')">
+        <div class="layout-preview">
+          <svg viewBox="0 0 64 44" width="64" height="44">
+            <rect x="4" y="4" width="56" height="36" rx="4" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+            <circle cx="32" cy="22" r="12" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+            <circle cx="32" cy="22" r="12" fill="none" stroke="#00E5FF" stroke-width="1.5" stroke-dasharray="50 26" transform="rotate(-90 32 22)" opacity="0.8"/>
+          </svg>
+        </div>
+        <span class="layout-name">Single</span>
+      </div>
+
+      <div class="layout-opt selected" id="opt-dual" onclick="selectLayout('dual')">
+        <div class="layout-preview">
+          <svg viewBox="0 0 64 44" width="64" height="44">
+            <rect x="4" y="4" width="26" height="36" rx="3" fill="none" stroke="rgba(0,229,255,0.5)" stroke-width="1"/>
+            <circle cx="17" cy="22" r="8" fill="none" stroke="rgba(0,229,255,0.4)" stroke-width="1.5" stroke-dasharray="34 17" transform="rotate(-90 17 22)"/>
+            <rect x="34" y="4" width="26" height="36" rx="3" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+            <circle cx="47" cy="22" r="8" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="25 26" transform="rotate(-90 47 22)"/>
+          </svg>
+        </div>
+        <span class="layout-name">Dual</span>
+      </div>
+
+      <div class="layout-opt" id="opt-focus" onclick="selectLayout('focus')">
+        <div class="layout-preview">
+          <svg viewBox="0 0 64 44" width="64" height="44">
+            <rect x="4" y="4" width="56" height="24" rx="3" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+            <circle cx="32" cy="16" r="7" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="28 16" transform="rotate(-90 32 16)"/>
+            <rect x="4" y="32" width="17" height="8" rx="2" fill="rgba(255,255,255,0.06)"/>
+            <rect x="24" y="32" width="17" height="8" rx="2" fill="rgba(255,255,255,0.06)"/>
+            <rect x="44" y="32" width="16" height="8" rx="2" fill="rgba(255,255,255,0.06)"/>
+          </svg>
+        </div>
+        <span class="layout-name">Focus</span>
+      </div>
+
+    </div>
+
+    <div class="section-label">Primary gauges</div>
+    <div class="slot-grid dual" id="gauge-slots">
+      <div class="slot-card" onclick="openModal('primary', 'RPM')">
+        <div class="slot-icon"><i class="ti ti-gauge" aria-hidden="true"></i></div>
+        <div class="slot-info">
+          <div class="slot-role">Primary</div>
+          <div class="slot-pid">Engine RPM</div>
+          <div class="slot-range mono">0 – 8000 rpm</div>
+        </div>
+        <i class="ti ti-chevron-right slot-chevron" aria-hidden="true"></i>
+      </div>
+      <div class="slot-card" id="secondary-slot" onclick="openModal('secondary', 'Speed')">
+        <div class="slot-icon"><i class="ti ti-speedometer" aria-hidden="true"></i></div>
+        <div class="slot-info">
+          <div class="slot-role">Secondary</div>
+          <div class="slot-pid">Vehicle speed</div>
+          <div class="slot-range mono">0 – 220 km/h</div>
+        </div>
+        <i class="ti ti-chevron-right slot-chevron" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <div class="section-label strip-section">PID strip</div>
+    <div class="strip-slots">
+      <div class="strip-slot" onclick="openModal('strip', 'Coolant')">
+        <span class="strip-pid">Coolant temp</span>
+        <i class="ti ti-pencil strip-edit" aria-hidden="true"></i>
+      </div>
+      <div class="strip-slot" onclick="openModal('strip', 'Throttle')">
+        <span class="strip-pid">Throttle pos</span>
+        <i class="ti ti-pencil strip-edit" aria-hidden="true"></i>
+      </div>
+      <div class="strip-slot" onclick="openModal('strip', 'Load')">
+        <span class="strip-pid">Engine load</span>
+        <i class="ti ti-pencil strip-edit" aria-hidden="true"></i>
+      </div>
+      <div class="strip-slot" onclick="openModal('strip', 'IAT')">
+        <span class="strip-pid">Intake temp</span>
+        <i class="ti ti-pencil strip-edit" aria-hidden="true"></i>
+      </div>
+      <div class="strip-slot" onclick="openModal('strip', 'MAF')">
+        <span class="strip-pid">MAF rate</span>
+        <i class="ti ti-pencil strip-edit" aria-hidden="true"></i>
+      </div>
+      <div class="strip-slot" onclick="openModal('strip', 'FuelTrim')">
+        <span class="strip-pid">Fuel trim ST</span>
+        <i class="ti ti-pencil strip-edit" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Behaviour</div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Threshold alerts</div>
+        <div class="toggle-desc">Warn when values exceed configured ranges</div>
+      </div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Keep screen on</div>
+        <div class="toggle-desc">Prevent display sleep while connected</div>
+      </div>
+      <div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <div class="toggle-label">Log to file</div>
+        <div class="toggle-desc">Record session data as CSV</div>
+      </div>
+      <div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-thumb"></div></div>
+    </div>
+  </div>
+
+  <div class="pid-modal-bg" id="modal-bg" onclick="closeModal(event)">
+    <div class="pid-modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title">Select PID</span>
+        <button class="modal-close" onclick="closeModal(null)" aria-label="Close">×</button>
+      </div>
+      <div id="pid-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PIDS = [
+  { name: 'Engine RPM',       unit: 'rpm',  icon: 'ti-gauge' },
+  { name: 'Vehicle speed',    unit: 'km/h', icon: 'ti-speedometer' },
+  { name: 'Coolant temp',     unit: '°C',   icon: 'ti-temperature' },
+  { name: 'Throttle position',unit: '%',    icon: 'ti-adjustments' },
+  { name: 'Engine load',      unit: '%',    icon: 'ti-bolt' },
+  { name: 'Intake air temp',  unit: '°C',   icon: 'ti-wind' },
+  { name: 'MAF air flow',     unit: 'g/s',  icon: 'ti-wave-sine' },
+  { name: 'Fuel trim ST B1',  unit: '%',    icon: 'ti-droplet' },
+  { name: 'Fuel trim LT B1',  unit: '%',    icon: 'ti-droplet-half' },
+  { name: 'O2 sensor B1S1',   unit: 'V',    icon: 'ti-atom' },
+  { name: 'Timing advance',   unit: '°',    icon: 'ti-clock' },
+  { name: 'Fuel pressure',    unit: 'kPa',  icon: 'ti-olympics' },
+  { name: 'Barometric press', unit: 'kPa',  icon: 'ti-cloud' },
+  { name: 'EGR commanded',    unit: '%',    icon: 'ti-refresh' },
+  { name: 'Catalyst temp B1', unit: '°C',   icon: 'ti-flame' },
+];
+
+let currentSlot = null;
+let currentSelected = null;
+let layout = 'dual';
+
+function selectLayout(l) {
+  layout = l;
+  ['single','dual','focus'].forEach(o => {
+    document.getElementById('opt-' + o).classList.toggle('selected', o === l);
+  });
+  const slotGrid = document.getElementById('gauge-slots');
+  const secondarySlot = document.getElementById('secondary-slot');
+  if (l === 'single') {
+    slotGrid.className = 'slot-grid single';
+    secondarySlot.style.display = 'none';
+  } else {
+    slotGrid.className = 'slot-grid dual';
+    secondarySlot.style.display = 'flex';
+  }
+}
+
+function openModal(slot, selected) {
+  currentSlot = slot;
+  currentSelected = selected;
+  const titles = { primary: 'Primary gauge PID', secondary: 'Secondary gauge PID', strip: 'Strip slot PID', focus: 'Focus gauge PID' };
+  document.getElementById('modal-title').textContent = titles[slot] || 'Select PID';
+  const list = document.getElementById('pid-list');
+  list.innerHTML = PIDS.map((p, i) => `
+    <div class="pid-list-item ${p.name.includes(currentSelected) ? 'active' : ''}" onclick="selectPid(${i})">
+      <span class="pid-list-name">${p.name}</span>
+      <span class="pid-list-unit">${p.unit}</span>
+      ${p.name.includes(currentSelected) ? '<i class="ti ti-check pid-list-check" aria-hidden="true"></i>' : ''}
+    </div>
+  `).join('');
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function selectPid(idx) {
+  closeModal(null);
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-bg')) return;
+  document.getElementById('modal-bg').classList.remove('open');
+}
+</script>
