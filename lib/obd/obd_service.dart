@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../elm327/elm327_controller.dart';
 import 'pid/pid.dart';
 
@@ -9,6 +8,7 @@ class ObdService {
   Timer? _pollingTimer;
   Set<Pid> _activePids = {};
   final Set<Pid> _supportedPids = {};
+  bool _polling = false;
 
   ObdService(this.elm);
 
@@ -35,11 +35,8 @@ class ObdService {
     for (int i = 0; i < 31; i++) {
       if ((mask & (0x80000000 >> i)) != 0) {
         final pidId = offset + i + 1;
-        final pid = pidRegistry.values.firstWhere(
-          (p) => p.mode == 0x01 && p.id == pidId,
-          orElse: () => PidDefinition(pid: Pid.speed, mode: 0, id: 0, name: '', unit: '', min: 0, max: 0, decode: (b) => 0),
-        ).pid;
-        if (pidId != 0) _supportedPids.add(pid);
+        final def = pidRegistry.values.where((p) => p.mode == 0x01 && p.id == pidId).firstOrNull;
+        if (def != null) _supportedPids.add(def.pid);
       }
     }
   }
@@ -55,7 +52,8 @@ class ObdService {
   }
 
   Future<void> _poll() async {
-    if (elm.currentStatus != Elm327Status.ready) return;
+    if (_polling || elm.currentStatus != Elm327Status.ready) return;
+    _polling = true;
 
     final Map<Pid, double> results = {};
     for (final pid in _activePids) {
@@ -75,6 +73,7 @@ class ObdService {
     if (results.isNotEmpty) {
       _snapshotController.add(results);
     }
+    _polling = false;
   }
 
   double? _decodeResponse(String response, PidDefinition def) {

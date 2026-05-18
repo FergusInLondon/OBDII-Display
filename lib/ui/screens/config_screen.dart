@@ -34,9 +34,12 @@ class ConfigScreen extends ConsumerWidget {
           _buildStripSlots(context, ref, profile),
           const SizedBox(height: 24),
           _buildSectionLabel(context, 'BEHAVIOUR'),
-          _buildToggleRow('Threshold alerts', 'Warn when values exceed ranges', true),
-          _buildToggleRow('Keep screen on', 'Prevent display sleep', true),
-          _buildToggleRow('Log to file', 'Record session data as CSV', false),
+          _buildToggleRow('Threshold alerts', 'Warn when values exceed ranges',
+              profile.thresholdAlerts, (v) => _updateProfile(ref, profile.copyWith(thresholdAlerts: v))),
+          _buildToggleRow('Keep screen on', 'Prevent display sleep',
+              profile.keepScreenOn, (v) => _updateProfile(ref, profile.copyWith(keepScreenOn: v))),
+          _buildToggleRow('Log to file', 'Record session data as CSV',
+              profile.logToFile, (v) => _updateProfile(ref, profile.copyWith(logToFile: v))),
         ],
       ),
     );
@@ -74,16 +77,11 @@ class ConfigScreen extends ConsumerWidget {
   }
 
   void _updateLayout(WidgetRef ref, DashboardProfile profile, DashboardLayout layout) {
-    ref.read(activeProfileProvider.notifier).updateProfile(
-      DashboardProfile(
-        id: profile.id,
-        name: profile.name,
-        layout: layout,
-        primaryGauge: profile.primaryGauge,
-        secondaryGauge: profile.secondaryGauge,
-        stripSlots: profile.stripSlots,
-      ),
-    );
+    _updateProfile(ref, profile.copyWith(layout: layout));
+  }
+
+  void _updateProfile(WidgetRef ref, DashboardProfile profile) {
+    ref.read(activeProfileProvider.notifier).updateProfile(profile);
   }
 
   Widget _buildGaugeSlots(BuildContext context, WidgetRef ref, DashboardProfile profile) {
@@ -118,7 +116,7 @@ class ConfigScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildToggleRow(String title, String desc, bool value) {
+  Widget _buildToggleRow(String title, String desc, bool value, ValueChanged<bool> onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -131,7 +129,7 @@ class ConfigScreen extends ConsumerWidget {
               Text(desc, style: const TextStyle(fontSize: 11, color: AppTheme.mutedTextColor)),
             ],
           ),
-          Switch(value: value, onChanged: (_) {}, activeColor: AppTheme.primaryColor),
+          Switch(value: value, onChanged: onChanged, activeColor: AppTheme.primaryColor),
         ],
       ),
     );
