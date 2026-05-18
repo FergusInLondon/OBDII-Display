@@ -1,0 +1,31 @@
+name: obd_app
+description: "A clean, modern OBD-II diagnostic and dashboard application."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.4.9
+  flutter_blue_plus: ^1.31.11
+  flutter_bluetooth_serial: ^0.4.0
+  shared_preferences: ^2.2.2
+  go_router: ^13.2.0
+  google_fonts: ^6.1.0
+  permission_handler: ^11.3.0
+  riverpod_annotation: ^2.3.4
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  riverpod_generator: ^2.3.9
+  build_runner: ^2.4.8
+  riverpod_lint: ^2.3.7
+
+flutter:
+  uses-material-design: true
