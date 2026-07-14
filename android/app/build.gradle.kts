@@ -24,7 +24,8 @@ android {
         applicationId = "com.example.obd_app.obd_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // androidx.car.app requires API 23+, hence the higher floor than Flutter's default.
+        minSdk = maxOf(flutter.minSdkVersion, 23)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -37,6 +38,12 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+}
+
+dependencies {
+    // Car App Library: templates for Android Auto (phone projection) and Android Automotive OS.
+    implementation("androidx.car.app:app:1.4.0")
+    implementation("androidx.car.app:app-projected:1.4.0")
 }
 
 flutter {
