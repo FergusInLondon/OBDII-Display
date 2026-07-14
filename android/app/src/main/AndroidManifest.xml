@@ -30,6 +30,26 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- Declares that this app hosts Car App Library templates, required for
+             Android Auto to offer it as an in-car app. -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+
+        <!-- Read-only PID grid shown on the car screen. Uses the IOT category as the
+             closest fit for "monitor a connected device"; Play Store publishing under
+             this category requires Google's category-access approval - this is fine
+             for local/Desktop Head Unit testing without it. -->
+        <service
+            android:name=".car.PidCarAppService"
+            android:exported="true"
+            android:label="OBD-II PIDs">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.IOT" />
+            </intent-filter>
+        </service>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
